@@ -1,0 +1,17 @@
+{
+  "name": "stats-karol",
+  "version": "0.0.0",
+  "description": "Statistics for Robot Karol Web",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "main": "index.js",
+  "author": "Entkenntnis <karol@arrrg.de>",
+  "dependencies": {
+    "express": "^4.0.0",
+    "mariadb": "^2.0.0",
+    "sequelize": "^6.0.0",
+    "shortid": "^2.2.16",
+    "sqlite3": "^5.0.0"
+  }
+}
