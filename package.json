@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "description": "Statistics for Robot Karol Web",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js",
+    "save2local": "cross-env UBERSPACE=1 SAVE2LOCAL=1 node src/index.js"
   },
-  "main": "index.js",
+  "main": "src/index.js",
   "author": "Entkenntnis <karol@arrrg.de>",
   "dependencies": {
     "express": "^4.0.0",
@@ -13,5 +14,8 @@
     "sequelize": "^6.0.0",
     "shortid": "^2.2.16",
     "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

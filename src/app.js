@@ -1,137 +1,20 @@
-const { Sequelize, DataTypes, Op } = require('sequelize')
-const express = require('express')
+module.exports = (App) => {
+  // starting server
+  void (async function start() {
+    await App.db.authenticate()
+    await App.db.sync()
+    // await buildCache()
+    App.express.listen(3006, () => {
+      console.log('server started')
+    })
+  })()
+}
+/*
 const shortid = require('shortid')
-const secrets = require('./secrets.js')
 
-const isUberspace = !!process.env.UBERSPACE
-
-const db = isUberspace
-  ? {
-      database: 'arrrg_stats_karol',
-      username: 'arrrg',
-      password: secrets.db_password,
-      dialect: 'mariadb',
-      dialectOptions: {
-        timezone: 'Europe/Berlin',
-      },
-      logging: false,
-    }
-  : {
-      dialect: 'sqlite',
-      storage: './db.sqlite',
-      logging: false,
-    }
-
-const sequelize = new Sequelize(db)
-
-const MEvent = sequelize.define('MEvent2', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  event: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  userId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-})
-
-const MShare = sequelize.define('MShare', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  publicId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  content: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-})
-
-const MQuestShare = sequelize.define('MQuestShare', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  publicId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  content: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-})
-
-const MSolutionLog = sequelize.define('MSolutionLog', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  questId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  solution: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-})
-
-const MSolutionLog2 = sequelize.define('MSolutionLog2', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  questId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  userId: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  solution: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-})
-
-const app = express()
-
-app.use(express.json())
-app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
-
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS')
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, Content-Length, X-Requested-With'
-  )
-
-  //intercepts OPTIONS method
-  if ('OPTIONS' === req.method) {
-    res.sendStatus(200)
-  } else {
-    next()
-  }
-})
-
-app.post('/submit', async (req, res) => {
+App.express.post('/submit', async (req, res) => {
   try {
-    await MEvent.create({
+    await App.db.MEvent2.create({
       event: req.body.event,
       userId: req.body.userId || '',
     })
@@ -150,9 +33,9 @@ app.post('/submit', async (req, res) => {
   res.send('bad')
 })
 
-app.post('/submitSolution', async (req, res) => {
+App.express.post('/submitSolution', async (req, res) => {
   try {
-    await MSolutionLog2.create({
+    await App.db.MSolutionLog2.create({
       questId: req.body.questId || -1,
       solution: req.body.solution || '',
       userId: req.body.userId || '',
@@ -165,10 +48,10 @@ app.post('/submitSolution', async (req, res) => {
   res.send('bad')
 })
 
-app.post('/share', async (req, res) => {
+App.express.post('/share', async (req, res) => {
   try {
     const publicId = shortid.generate()
-    await MShare.create({
+    await App.db.MShare.create({
       publicId,
       content: typeof req.body.content === 'string' ? req.body.content : '',
     })
@@ -180,7 +63,7 @@ app.post('/share', async (req, res) => {
   res.send('bad')
 })
 
-app.post('/quest_share', async (req, res) => {
+App.express.post('/quest_share', async (req, res) => {
   try {
     let publicId = generateFriendlyUrl()
     let tries = 0
@@ -204,7 +87,7 @@ app.post('/quest_share', async (req, res) => {
   res.send('bad')
 })
 
-app.get('/load/:id', async (req, res) => {
+App.express.get('/load/:id', async (req, res) => {
   try {
     const publicId = req.params.id
     const entry = await MShare.findOne({ where: { publicId } })
@@ -216,7 +99,7 @@ app.get('/load/:id', async (req, res) => {
   res.send('bad')
 })
 
-app.get('/quest/load/:id', async (req, res) => {
+App.express.get('/quest/load/:id', async (req, res) => {
   try {
     const publicId = req.params.id
     const entry = await MQuestShare.findOne({ where: { publicId } })
@@ -242,20 +125,22 @@ const exportTemplate = `<!DOCTYPE html>
   </body>
 </html>`
 
-app.get('/export', (req, res) => {
+App.express.get('/export', (req, res) => {
   res.send(exportTemplate)
 })
 
-app.get('/exportSolutions', (req, res) => {
+App.express.get('/exportSolutions', (req, res) => {
   res.send(exportTemplate)
 })
 
-app.post('/export', async (req, res) => {
+App.express.post('/export', async (req, res) => {
   try {
-    if (req.body.password === secrets.backend_password) {
+    if (req.body.password === App.secrets.backend_password) {
       const ts = parseInt(req.body.ts || '0')
       const data = await MEvent.findAll(
-        ts > 0 ? { where: { createdAt: { [Op.gt]: new Date(ts) } } } : undefined
+        ts > 0
+          ? { where: { createdAt: { [App.db.Op.gt]: new Date(ts) } } }
+          : undefined
       )
       const output = []
       for (const entry of data) {
@@ -275,12 +160,14 @@ app.post('/export', async (req, res) => {
   }
 })
 
-app.post('/exportSolutions', async (req, res) => {
+App.express.post('/exportSolutions', async (req, res) => {
   try {
-    if (req.body.password === secrets.backend_password) {
+    if (req.body.password === App.secrets.backend_password) {
       const ts = parseInt(req.body.ts || '0')
-      const solutions = await MSolutionLog2.findAll(
-        ts > 0 ? { where: { createdAt: { [Op.gt]: new Date(ts) } } } : undefined
+      const solutions = await App.db.MSolutionLog2.findAll(
+        ts > 0
+          ? { where: { createdAt: { [App.db.Op.gt]: new Date(ts) } } }
+          : undefined
       )
       const output = []
       for (const entry of solutions) {
@@ -301,7 +188,7 @@ app.post('/exportSolutions', async (req, res) => {
   }
 })
 
-app.get('/mod', (req, res) => {
+App.express.get('/mod', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -319,13 +206,11 @@ app.get('/mod', (req, res) => {
   `)
 })
 
-app.post('/mod', async (req, res) => {
-  if (req.body.password === secrets.backend_password) {
-    const data = await MEvent.findAll()
+App.express.post('/mod', async (req, res) => {
+  if (req.body.password === App.secrets.backend_password) {
     const cutoff = Date.now() - timeSpan
-    const users = Object.values(data.reduce(reducer, {})).filter(
-      (entry) => entry.lastActive > cutoff && entry.solved.includes(1)
-    )
+    const cache = getCache()
+    users = Object.values(cache).filter((entry) => entry.lastActive > cutoff)
     users.sort((a, b) => b.lastActive - a.lastActive)
     res.send(`
 <!DOCTYPE html>
@@ -342,12 +227,26 @@ app.post('/mod', async (req, res) => {
           user.lastActive
         ).toISOString()} - <strong>${user.name}</strong> ${
           user.solved.length
-        } Aufgaben gelöst [${user.solved.join(', ')}] <a href="/delete/${
-          user.userId
-        }">löschen</a></p>
+        } Aufgaben gelöst [${user.solved.join(
+          ', '
+        )}] <a href="#" onClick="deleteUser(${user.userId})">löschen</a></p>
     `
       )
       .join('')}
+
+      <script>
+        function deleteUser(userId) {
+          fetch('/submit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ event: 'delete_user', userId }),
+          }).then(() => {
+            alert('ok')
+          })
+        }
+      </script>
   </body>
 </html>
     
@@ -357,7 +256,7 @@ app.post('/mod', async (req, res) => {
   res.send('wrong pw')
 })
 
-app.get('/delete/:id', async (req, res) => {
+/*app.get('/delete/:id', async (req, res) => {
   const userId = req.params.id
   if (userId) {
     await MEvent.destroy({ where: { userId } })
@@ -407,6 +306,13 @@ function reducer(acc, val) {
     acc[val.userId].name = name
   }
 
+  const result3 = /^delete_user$/.exec(val.event)
+  if (result3) {
+    if (acc[val.userId] && acc[val.userId].name) {
+      acc[val.userId].name = undefined
+    }
+  }
+
   return acc
 }
 
@@ -424,7 +330,10 @@ async function buildCache() {
 }
 
 function getCache() {
-  if (Date.now() - cacheCreated > 24 * 60 * 60 * 1000 /* 24h */) {
+  if (
+    Date.now() - cacheCreated >
+    24 * 60 * 60 * 1000 * 30 /* 30 days, we trust in the cache
+  ) {
     if (!isRebuilding) {
       isRebuilding = true
       setTimeout(() => {
@@ -435,25 +344,72 @@ function getCache() {
   return cache
 }
 
-app.get('/highscore', async (req, res) => {
+App.express.get('/highscore', async (req, res) => {
   const cutoff = Date.now() - timeSpan
   const cache = getCache()
   res.json(
     Object.values(cache).filter(
-      (entry) => entry.lastActive > cutoff && entry.solved.includes(1)
+      (entry) =>
+        entry.lastActive > cutoff &&
+        entry.solved.includes(1) &&
+        acc[val.userId].name
     )
   )
 })
 
-// starting server
-;(async function start() {
-  await sequelize.authenticate()
-  await sequelize.sync()
-  await buildCache()
-  app.listen(3006, () => {
-    console.log('server started')
-  })
-})()
+/*app.get('/overview', async (req, res) => {
+  const data = await MEvent.findAll()
+  const countByDate = data.reduce((res, obj) => {
+    const key = obj.createdAt.toISOString().substring(0, 10)
+    const entry = (res[key] = res[key] || { sessions: new Set() })
+    entry.sessions.add(obj.userId)
+    return res
+  }, {})
+
+  const entries = Object.entries(countByDate)
+
+  entries.sort((a, b) => a[0].localeCompare(b[0]))
+  res.send(`
+    <!doctype html>
+    <html lang="de">
+      <head>
+        <meta charset=utf-8>
+        <title>Übersicht monatlich aktive NutzerInnen von Robot Karol Online</title>
+      </head>
+      <body>
+        <h1>Übersicht monatlich aktive NutzerInnen von Robot Karol Online</h1>
+        <div style="width:100%;height:600px;position:relative;">
+          <canvas id="chart"></canvas>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+          const ctx = document.getElementById('chart');
+
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ${JSON.stringify(entries.map((e) => e[0]))},
+              datasets: [{
+                label: 'aktie NutzerInnen am Tag',
+                data: ${JSON.stringify(entries.map((e) => e[1].sessions.size))},
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              },
+              maintainAspectRatio: false,
+            }
+          });
+        </script>
+      </body>
+    </html>
+  `)
+})*/
 
 function generateFriendlyUrl() {
   const characters = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
@@ -465,7 +421,7 @@ function generateFriendlyUrl() {
 }
 
 async function checkIfPublicIdExists(publicId) {
-  const count = await MQuestShare.count({
+  const count = await App.db.MQuestShare.count({
     where: {
       publicId,
     },
