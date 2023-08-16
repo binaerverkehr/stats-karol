@@ -3,9 +3,9 @@ module.exports = (App) => {
   void (async function start() {
     await App.db.authenticate()
     await App.db.sync()
-    // await buildCache()
+    await App.cache.build()
     App.express.listen(3006, () => {
-      console.log('server started')
+      console.log('server started on port 3006')
     })
   })()
 }
