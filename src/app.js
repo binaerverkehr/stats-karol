@@ -10,50 +10,7 @@ module.exports = (App) => {
 }
 
 /*
-const shortid = require('shortid')
 
-
-
-
-
-App.express.post('/share', async (req, res) => {
-  try {
-    const publicId = shortid.generate()
-    await App.db.MShare.create({
-      publicId,
-      content: typeof req.body.content === 'string' ? req.body.content : '',
-    })
-    res.send(publicId)
-    return
-  } catch (e) {
-    console.log(e)
-  }
-  res.send('bad')
-})
-
-App.express.post('/quest_share', async (req, res) => {
-  try {
-    let publicId = generateFriendlyUrl()
-    let tries = 0
-    while (!(await checkIfPublicIdExists(publicId)) && tries++ < 10) {
-      publicId = generateFriendlyUrl()
-    }
-    if (tries == 10) {
-      res.send('not able to generate unique id')
-      return
-    }
-
-    await MQuestShare.create({
-      publicId,
-      content: typeof req.body.content === 'string' ? req.body.content : '',
-    })
-    res.send(publicId)
-    return
-  } catch (e) {
-    console.log(e)
-  }
-  res.send('bad')
-})
 
 App.express.get('/load/:id', async (req, res) => {
   try {
@@ -67,17 +24,6 @@ App.express.get('/load/:id', async (req, res) => {
   res.send('bad')
 })
 
-App.express.get('/quest/load/:id', async (req, res) => {
-  try {
-    const publicId = req.params.id
-    const entry = await MQuestShare.findOne({ where: { publicId } })
-    res.send(entry.content)
-    return
-  } catch (e) {
-    console.log(e)
-  }
-  res.send('bad')
-})
 
 const exportTemplate = `<!DOCTYPE html>
 <html lang="de">
@@ -156,73 +102,7 @@ App.express.post('/exportSolutions', async (req, res) => {
   }
 })
 
-App.express.get('/mod', (req, res) => {
-  res.send(`<!DOCTYPE html>
-<html lang="de">
-  <head>
-    <meta charset="utf-8">
-    <title>Robot Karol Stats Mod Panel</title>
-  </head>
-  <body>
-    <form method="post">
-      <label>Password: <input type="password" name="password"/></label>
-      <input type="submit">
-    </form>
-  </body>
-</html>
-  
-  `)
-})
 
-App.express.post('/mod', async (req, res) => {
-  if (req.body.password === App.secrets.backend_password) {
-    const cutoff = Date.now() - timeSpan
-    const cache = getCache()
-    users = Object.values(cache).filter((entry) => entry.lastActive > cutoff)
-    users.sort((a, b) => b.lastActive - a.lastActive)
-    res.send(`
-<!DOCTYPE html>
-<html lang="de">
-  <head>
-    <meta charset="utf-8">
-    <title>Robot Karol Stats Mod Panel</title>
-  </head>
-  <body>
-    ${users
-      .map(
-        (user) => `
-      <p>${new Date(user.firstActive).toISOString()} bis ${new Date(
-          user.lastActive
-        ).toISOString()} - <strong>${user.name}</strong> ${
-          user.solved.length
-        } Aufgaben gelöst [${user.solved.join(
-          ', '
-        )}] <a href="#" onClick="deleteUser(${user.userId})">löschen</a></p>
-    `
-      )
-      .join('')}
-
-      <script>
-        function deleteUser(userId) {
-          fetch('/submit', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ event: 'delete_user', userId }),
-          }).then(() => {
-            alert('ok')
-          })
-        }
-      </script>
-  </body>
-</html>
-    
-    `)
-    return
-  }
-  res.send('wrong pw')
-})
 
 /*app.get('/delete/:id', async (req, res) => {
   const userId = req.params.id
@@ -293,21 +173,3 @@ App.express.post('/mod', async (req, res) => {
     </html>
   `)
 })*/
-
-function generateFriendlyUrl() {
-  const characters = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
-  let url = ''
-  for (let i = 0; i < 4; i++) {
-    url += characters.charAt(Math.floor(Math.random() * characters.length))
-  }
-  return url
-}
-
-async function checkIfPublicIdExists(publicId) {
-  const count = await App.db.MQuestShare.count({
-    where: {
-      publicId,
-    },
-  })
-  return count > 0
-}

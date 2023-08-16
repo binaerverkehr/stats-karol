@@ -56,8 +56,8 @@ module.exports = (App, db) => {
     },
   })
 
-  App.db.define('MShare', {
-    // outdated, not in use anymore
+  App.db.LegacyShare = App.db.define('MShare', {
+    // outdated, but we still support reading from it
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,

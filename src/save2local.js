@@ -38,6 +38,13 @@ module.exports = (App) => {
     console.log('  Saving solutions ...')
     await LOCALAPP.db.SolutionLog.bulkCreate(solutions, { silent: true })
 
+    console.log('Loading legacyShares ...')
+    const legacyShares = await App.db.LegacyShare.findAll({ raw: true })
+    console.log(`  ${legacyShares.length} rows loaded`)
+
+    console.log('  Saving legacyShares ...')
+    await LOCALAPP.db.LegacyShare.bulkCreate(legacyShares, { silent: true })
+
     console.log('done')
     process.exit()
   })()
