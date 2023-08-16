@@ -1,5 +1,4 @@
 module.exports = (App) => {
-  // starting server
   void (async function start() {
     await App.db.authenticate()
     await App.db.sync()
@@ -9,44 +8,13 @@ module.exports = (App) => {
     })
   })()
 }
+
 /*
 const shortid = require('shortid')
 
-App.express.post('/submit', async (req, res) => {
-  try {
-    await App.db.MEvent2.create({
-      event: req.body.event,
-      userId: req.body.userId || '',
-    })
-    if (cache) {
-      reducer(cache, {
-        event: req.body.event,
-        userId: req.body.userId || '',
-        createdAt: Date.now(),
-      })
-    }
-    res.send('ok')
-    return
-  } catch (e) {
-    console.log(e)
-  }
-  res.send('bad')
-})
 
-App.express.post('/submitSolution', async (req, res) => {
-  try {
-    await App.db.MSolutionLog2.create({
-      questId: req.body.questId || -1,
-      solution: req.body.solution || '',
-      userId: req.body.userId || '',
-    })
-    res.send('ok')
-    return
-  } catch (e) {
-    console.log(e)
-  }
-  res.send('bad')
-})
+
+
 
 App.express.post('/share', async (req, res) => {
   try {
@@ -268,94 +236,9 @@ App.express.post('/mod', async (req, res) => {
   res.send('no userid')
 })
 
-// in-memory cache to reduce server workload
 
-function reducer(acc, val) {
-  const ts = new Date(val.createdAt).getTime()
 
-  function createUserIfNotExists() {
-    if (!acc[val.userId]) {
-      acc[val.userId] = {
-        userId: val.userId,
-        firstActive: ts,
-        lastActive: ts,
-        solved: [],
-        name: '',
-      }
-    }
-  }
-  const result = /^quest_complete_([\d]+)$/.exec(val.event)
-  if (result) {
-    createUserIfNotExists()
-    const id = parseInt(result[1])
-    if (ts < acc[val.userId].firstActive) {
-      acc[val.userId].firstActive = ts
-    }
-    if (!acc[val.userId].solved.includes(id)) {
-      acc[val.userId].solved.push(id)
-      if (ts > acc[val.userId].lastActive) {
-        acc[val.userId].lastActive = ts
-      }
-    }
-  }
 
-  const result2 = /^set_name_(.+)$/.exec(val.event)
-  if (result2) {
-    createUserIfNotExists()
-    const name = result2[1].trim()
-    acc[val.userId].name = name
-  }
-
-  const result3 = /^delete_user$/.exec(val.event)
-  if (result3) {
-    if (acc[val.userId] && acc[val.userId].name) {
-      acc[val.userId].name = undefined
-    }
-  }
-
-  return acc
-}
-
-const timeSpan = 28 * 24 * 60 * 60 * 1000 // 28 days
-
-let cache = undefined
-let cacheCreated = Date.now()
-let isRebuilding = false
-
-async function buildCache() {
-  const data = await MEvent.findAll()
-  cache = data.reduce(reducer, {})
-  cacheCreated = Date.now()
-  isRebuilding = false
-}
-
-function getCache() {
-  if (
-    Date.now() - cacheCreated >
-    24 * 60 * 60 * 1000 * 30 /* 30 days, we trust in the cache
-  ) {
-    if (!isRebuilding) {
-      isRebuilding = true
-      setTimeout(() => {
-        void buildCache()
-      })
-    }
-  }
-  return cache
-}
-
-App.express.get('/highscore', async (req, res) => {
-  const cutoff = Date.now() - timeSpan
-  const cache = getCache()
-  res.json(
-    Object.values(cache).filter(
-      (entry) =>
-        entry.lastActive > cutoff &&
-        entry.solved.includes(1) &&
-        acc[val.userId].name
-    )
-  )
-})
 
 /*app.get('/overview', async (req, res) => {
   const data = await MEvent.findAll()

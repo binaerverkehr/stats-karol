@@ -35,4 +35,10 @@ module.exports = (App) => {
   App.cache.get = () => {
     return App.cache.__value
   }
+
+  App.cache.append = (event) => {
+    if (App.cache.__value) {
+      reducer(App.cache.__value, event)
+    }
+  }
 }
