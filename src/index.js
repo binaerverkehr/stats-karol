@@ -14,6 +14,7 @@ require('./routes/quest-load.js')(App)
 require('./routes/load.js')(App)
 require('./routes/export.js')(App)
 require('./routes/exportSolutions.js')(App)
+require('./routes/kpi.js')(App)
 
 if (process.env.SAVE2LOCAL) {
   require('./save2local.js')(App)
