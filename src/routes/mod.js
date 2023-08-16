@@ -47,7 +47,7 @@ module.exports = (App) => {
                     ', '
                   )}] <a href="#" onClick="deleteUser('${
                     user.userId
-                  }')">löschen</a></p>
+                  }'); return false;">löschen</a></p>
               `
                 )
                 .join('')}
@@ -63,7 +63,6 @@ module.exports = (App) => {
                     }).then(() => {
                       alert('ok')
                     })
-                    return false
                   }
                 </script>
             </body>
