@@ -3,8 +3,10 @@ module.exports = (App) => {
     try {
       const publicId = req.params.id
       const entry = await App.db.QuestShare.findOne({ where: { publicId } })
-      res.send(entry.content)
-      return
+      if (entry) {
+        res.send(entry.content)
+        return
+      }
     } catch (e) {
       console.log(e)
     }
