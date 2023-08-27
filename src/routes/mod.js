@@ -1,3 +1,5 @@
+const escape = require('escape-html')
+
 module.exports = (App) => {
   App.express.get('/mod', (_, res) => {
     res.send(`
@@ -41,7 +43,7 @@ module.exports = (App) => {
                     user.lastActive
                   ).toISOString()} - ${
                     user.name
-                      ? `<strong>${user.name}</strong>`
+                      ? `<strong>${escape(user.name)}</strong>`
                       : '<em>gelöscht</em>'
                   } ${user.solved.length} Aufgaben gelöst [${user.solved.join(
                     ', '
