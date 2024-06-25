@@ -3,7 +3,7 @@ module.exports = (App) => {
     try {
       let publicId = generateFriendlyUrl()
       let tries = 0
-      while (!(await checkIfPublicIdExists(publicId)) && tries++ < 10) {
+      while ((await checkIfPublicIdExists(publicId)) && tries++ < 10) {
         publicId = generateFriendlyUrl()
       }
       if (tries == 10) {
