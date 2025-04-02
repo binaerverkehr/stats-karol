@@ -17,6 +17,9 @@ require('./routes/exportSolutions.js')(App)
 require('./routes/kpi.js')(App)
 require('./routes/random.js')(App)
 
+require('./routes/load_image.js')(App)
+require('./routes/share_image.js')(App)
+
 if (process.env.SAVE2LOCAL) {
   require('./save2local.js')(App)
 } else {

@@ -89,4 +89,20 @@ module.exports = (App, db) => {
       allowNull: false,
     },
   })
+
+  App.db.ImageUrl = App.db.define('ImageUrl', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    publicId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+  })
 }
