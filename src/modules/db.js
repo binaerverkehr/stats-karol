@@ -17,8 +17,8 @@ module.exports = (App) => {
   if (missingEnvVars.length > 0) {
     console.warn(
       `WARN: Missing database environment variables: ${missingEnvVars.join(
-        ', ' 
-      )}. Falling back to SQLite.'
+        ', '
+      )}. Falling back to SQLite.`
     )
     dbConfig = {
       dialect: 'sqlite',
