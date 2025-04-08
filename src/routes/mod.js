@@ -21,7 +21,8 @@ module.exports = (App) => {
 
   App.express.post('/mod', async (req, res) => {
     try {
-      if (req.body.password === App.secrets.backend_password) {
+      // Check password using environment variable
+      if (req.body.password === process.env.BACKEND_PASSWORD) {
         const cutoff = Date.now() - 28 * 24 * 1000 * 60 * 60
         const cache = App.cache.get()
         users = Object.values(cache).filter(

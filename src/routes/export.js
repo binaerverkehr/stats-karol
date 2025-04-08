@@ -1,7 +1,7 @@
 module.exports = (App) => {
   App.express.post('/export', async (req, res) => {
     try {
-      if (req.body.password === App.secrets.backend_password) {
+      if (req.body.password === process.env.BACKEND_PASSWORD) {
         const ts = parseInt(req.body.ts || '0')
         const data = await App.db.Event.findAll(
           ts > 0
