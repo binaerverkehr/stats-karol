@@ -8,14 +8,8 @@ module.exports = (App) => {
   App.express.use(express.json())
   App.express.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-  // CORS configuration
-  const corsOptions = {
-    origin: 'https://karol.logiklabor.de', // Allow specific origin
-    optionsSuccessStatus: 200 // For legacy browser compatibility
-  }
-
-  // Use CORS middleware
-  App.express.use(cors(corsOptions))
+  // Use CORS middleware (Allow all origins for debugging)
+  App.express.use(cors())
 
   // The old manual CORS handling below is now removed
   /*
